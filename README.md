@@ -91,21 +91,6 @@ Using `json-server-auth` and custom middleware:
 
 ---
 
-## 🚀 Deploy to Render.com (Free)
-
-1. **Create GitHub Repo**: Push your project to GitHub
-2. **Create Render Account**: Go to [https://render.com](https://render.com)
-3. **New Web Service**:
-   - Connect your GitHub repo
-   - Select branch and root directory
-   - Set build command: `npm install`
-   - Set start command: `node server.js`
-4. **Environment**:
-   - Add `PORT=10000` or any available port
-5. **Deploy**: Click Deploy and wait for the build to finish
-
----
-
 ## 🧪 Testing
 
 Use the provided Postman collection to test all endpoints:
