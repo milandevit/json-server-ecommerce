@@ -1,141 +1,109 @@
 {
-  "users": [
-    {
-      "id": 1,
-      "email": "user1@example.com",
-      "password": "password123",
-      "name": "Alice Johnson"
-    },
-    {
-      "id": 2,
-      "email": "user2@example.com",
-      "password": "password123",
-      "name": "Bob Smith"
-    },
-    {
-      "id": 3,
-      "email": "user3@example.com",
-      "password": "password123",
-      "name": "Charlie Brown"
-    }
-  ],
-  "categories": [
-    {
-      "id": 1,
-      "name": "Electronics"
-    },
-    {
-      "id": 2,
-      "name": "Clothing"
-    },
-    {
-      "id": 3,
-      "name": "Books"
-    },
-    {
-      "id": 4,
-      "name": "Home & Kitchen"
-    },
-    {
-      "id": 5,
-      "name": "Toys"
-    }
-  ],
-  "products": [
-    {
-      "id": 1,
-      "title": "Wireless Headphones",
-      "description": "Noise-cancelling over-ear headphones with 20-hour battery life.",
-      "price": 149.99,
-      "categoryId": 1,
-      "image": "https://via.placeholder.com/150",
-      "stock": 25
-    },
-    {
-      "id": 2,
-      "title": "Men's Cotton T-Shirt",
-      "description": "Soft and breathable cotton t-shirt, available in multiple colors.",
-      "price": 19.99,
-      "categoryId": 2,
-      "image": "https://via.placeholder.com/150",
-      "stock": 100
-    },
-    {
-      "id": 3,
-      "title": "Children’s Story Book",
-      "description": "A fun and educational book for kids aged 5-8.",
-      "price": 9.49,
-      "categoryId": 3,
-      "image": "https://via.placeholder.com/150",
-      "stock": 50
-    },
-    {
-      "id": 4,
-      "title": "Kitchen Blender",
-      "description": "Powerful blender perfect for smoothies and purees.",
-      "price": 59.99,
-      "categoryId": 4,
-      "image": "https://via.placeholder.com/150",
-      "stock": 15
-    },
-    {
-      "id": 5,
-      "title": "Remote Control Car",
-      "description": "High-speed RC car with rechargeable battery.",
-      "price": 29.99,
-      "categoryId": 5,
-      "image": "https://via.placeholder.com/150",
-      "stock": 40
-    }
-  ],
-  "cart": [
-    {
-      "id": 1,
-      "userId": 1,
-      "productId": 1,
-      "quantity": 1
-    },
-    {
-      "id": 2,
-      "userId": 1,
-      "productId": 2,
-      "quantity": 2
-    },
-    {
-      "id": 3,
-      "userId": 2,
-      "productId": 5,
-      "quantity": 1
-    }
-  ],
-  "orders": [
-    {
-      "id": 1,
-      "userId": 1,
-      "items": [
+    "users": [
         {
-          "productId": 1,
-          "quantity": 1
+            "id": 1,
+            "email": "alice@example.com",
+            "password": "password123",
+            "name": "Alice Smith",
+            "role": "customer"
         },
         {
-          "productId": 2,
-          "quantity": 2
-        }
-      ],
-      "total": 189.97,
-      "createdAt": "2024-12-01T10:15:00Z"
-    },
-    {
-      "id": 2,
-      "userId": 2,
-      "items": [
+            "id": 2,
+            "email": "bob@example.com",
+            "password": "password456",
+            "name": "Bob Johnson",
+            "role": "customer"
+        },
         {
-          "productId": 5,
-          "quantity": 1
+            "id": 3,
+            "email": "admin@example.com",
+            "password": "adminpass",
+            "name": "Admin User",
+            "role": "admin"
         }
-      ],
-      "total": 29.99,
-      "createdAt": "2025-01-05T14:30:00Z"
-    }
-  ]
+    ],
+    "products": [
+        {
+            "id": 1,
+            "name": "Wireless Mouse",
+            "description": "Ergonomic wireless mouse",
+            "price": 25.99,
+            "category": "Electronics",
+            "stock": 100,
+            "userId": 3
+        },
+        {
+            "id": 2,
+            "name": "Bluetooth Headphones",
+            "description": "Noise-cancelling over-ear headphones",
+            "price": 89.99,
+            "category": "Electronics",
+            "stock": 50,
+            "userId": 3
+        }
+    ],
+    "cart": [
+        {
+            "id": 1,
+            "userId": 1,
+            "productId": 1,
+            "quantity": 2
+        }
+    ],
+    "orders": [
+        {
+            "id": 1,
+            "userId": 1,
+            "items": [
+                {
+                    "productId": 1,
+                    "quantity": 2
+                }
+            ],
+            "total": 51.98,
+            "status": "processing"
+        }
+    ],
+    "reviews": [
+        {
+            "id": 1,
+            "userId": 1,
+            "productId": 1,
+            "rating": 5,
+            "comment": "Great mouse!"
+        }
+    ],
+    "addresses": [
+        {
+            "id": 1,
+            "userId": 1,
+            "type": "shipping",
+            "address": "123 Main St, Vancouver, BC"
+        }
+    ],
+    "wishlists": [
+        {
+            "id": 1,
+            "userId": 2,
+            "productId": 2
+        }
+    ],
+    "payments": [
+        {
+            "id": 1,
+            "userId": 1,
+            "orderId": 1,
+            "amount": 51.98,
+            "method": "credit_card",
+            "status": "paid"
+        }
+    ],
+    "coupons": [
+        {
+            "id": 1,
+            "code": "WELCOME10",
+            "discount": 10,
+            "expires": "2024-12-31"
+        }
+    ]
 }

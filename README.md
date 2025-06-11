@@ -1,104 +1,119 @@
-# 🛒 JSON Server eCommerce API
+# 🛒 Advanced E-Commerce API with JSON Server & Auth
 
-A mock eCommerce REST API built with [json-server](https://github.com/typicode/json-server) and [json-server-auth](https://github.com/jeremyben/json-server-auth) to simulate user registration, login, product management, cart, and order handling.
-
----
-
-## 🚀 Features
-
-- ✅ User Registration & Login (JWT based)
-- 📦 Product CRUD
-- 🧺 Cart API per user
-- 🧾 Orders API per user
-- 🔐 Protected routes via `json-server-auth`
-- ⚙️ Easily deployable to Render/Replit/Railway
+This project is a mock e-commerce REST API built using `json-server` and `json-server-auth`. It supports user authentication, role-based access (admin/customer), and realistic e-commerce features like products, cart, orders, reviews, and more.
 
 ---
 
-## 🧪 Sample Credentials
+## 📦 Database Schema Overview (`db.json`)
 
-```json
-{
-  "email": "test@example.com",
-  "password": "secret123"
-}
-```
+- `users`: Registered users with roles (`admin` or `customer`)
+- `products`: Product catalog with categories, prices, and inventory
+- `categories`: Product categories
+- `cart`: Items added to cart by users
+- `orders`: Orders placed by users
+- `reviews`: Product reviews by users
+- `addresses`: Shipping and billing addresses
+- `wishlists`: Saved products for later
+- `payments`: Payment records for orders
+- `inventory`: Stock tracking
+- `coupons`: Promotional discount codes
 
 ---
 
-## 📦 Install & Run Locally
+## 🔐 Access Control Rules
 
-```
-git clone https://github.com/your-username/json-server-ecommerce.git
-cd json-server-ecommerce
+Using `json-server-auth` and custom middleware:
 
-npm install
-npm start
-```
+| Resource     | Access Rule Description                                  |
+|--------------|----------------------------------------------------------|
+| `users`      | Users can only read/update their own profile             |
+| `cart`       | Only the owner can read/write their cart                 |
+| `orders`     | Only the owner can place/view their orders               |
+| `products`   | Admins can create/update/delete, everyone can read       |
+| `reviews`    | Only the owner can write/edit/delete their reviews       |
+| `addresses`  | Only the owner can manage their addresses                |
+| `wishlists`  | Only the owner can manage their wishlist                 |
+| `payments`   | Only the owner can view their payment records            |
+| `coupons`    | Admins can create, users can read                        |
 
-Open your browser or Postman:
-```
-http://localhost:3000
-```
+---
 
-## 🔐 Auth Rules (`json-server-auth`)
+## 📬 API Endpoints
 
-| Resource    | Access Rule        |
-| ----------- | ------------------ |
-| `/users`    | owner only (`644`) |
-| `/products` | public (`644`)     |
-| `/cart`     | owner only (`660`) |
-| `/orders`   | owner only (`660`) |
+### 🔐 Auth
+- `POST /register` – Register a new user
+- `POST /login` – Login and receive JWT token
 
-To change access rules, add this before `app.use(auth)` in `server.js`:
-```
-const rules = auth.rewriter({
-  users: 640,
-  products: 644,
-  cart: 660,
-  orders: 660
-})
-app.use(rules)
-```
+### 👤 Users
+- `GET /users/:id` – Get user profile
+- `PATCH /users/:id` – Update user profile
 
-## 🌍 Deploy on Render (Free)
-1. Push this repo to GitHub
+### 🛍️ Products
+- `GET /products` – List all products
+- `POST /products` – (Admin only) Add new product
+- `PATCH /products/:id` – (Admin only) Update product
+- `DELETE /products/:id` – (Admin only) Delete product
 
-2. Go to https://render.com
+### 🛒 Cart
+- `GET /cart?userId=1` – Get user's cart
+- `POST /cart` – Add item to cart
+- `PATCH /cart/:id` – Update cart item
+- `DELETE /cart/:id` – Remove item from cart
 
-3. Click New > Web Service
+### 📦 Orders
+- `GET /orders?userId=1` – Get user's orders
+- `POST /orders` – Place a new order
 
-4. Connect your repo
+### 📝 Reviews
+- `GET /reviews?productId=1` – Get reviews for a product
+- `POST /reviews` – Add a review
+- `PATCH /reviews/:id` – Edit a review
+- `DELETE /reviews/:id` – Delete a review
 
-5. Fill in:
-    - Build Command: `npm install`
-    - Start Command: `npm start`
+### 🧾 Payments
+- `GET /payments?userId=1` – Get payment history
+- `POST /payments` – Record a payment
 
-Render will give you a public URL like: https://your-api.onrender.com
+### 🧳 Addresses
+- `GET /addresses?userId=1` – Get user's addresses
+- `POST /addresses` – Add address
+- `PATCH /addresses/:id` – Update address
+- `DELETE /addresses/:id` – Delete address
 
-## 🧪 Sample Endpoints
-| Method | Endpoint         | Description                 |
-| ------ | ---------------- | --------------------------- |
-| POST   | `/register`      | Register a new user         |
-| POST   | `/login`         | Login and get JWT token     |
-| GET    | `/products`      | List all products           |
-| POST   | `/products`      | Add product (auth required) |
-| GET    | `/cart?userId=1` | Get cart for user           |
-| POST   | `/orders`        | Place a new order           |
+### ❤️ Wishlists
+- `GET /wishlists?userId=1` – Get wishlist
+- `POST /wishlists` – Add to wishlist
+- `DELETE /wishlists/:id` – Remove from wishlist
 
-## 🧰 Tech Stack
-- Node.js
+### 🎟️ Coupons
+- `GET /coupons` – List available coupons
+- `POST /coupons` – (Admin only) Create coupon
 
-- json-server
+---
 
-- json-server-auth
+## 🚀 Deploy to Render.com (Free)
 
-- Render (deployment)
+1. **Create GitHub Repo**: Push your project to GitHub
+2. **Create Render Account**: Go to [https://render.com](https://render.com)
+3. **New Web Service**:
+   - Connect your GitHub repo
+   - Select branch and root directory
+   - Set build command: `npm install`
+   - Set start command: `node server.js`
+4. **Environment**:
+   - Add `PORT=10000` or any available port
+5. **Deploy**: Click Deploy and wait for the build to finish
+
+---
+
+## 🧪 Testing
+
+Use the provided Postman collection to test all endpoints:
+- Import `ecommerce_postman_collection.json` into Postman
+- Set `Authorization` header with `Bearer <token>` after login
+
+---
 
 ## 📄 License
-MIT
 
-Built for mock development and prototyping eCommerce features.
-
-
----
+This project is for educational and prototyping purposes only.
