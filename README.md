@@ -15,16 +15,6 @@ A mock eCommerce REST API built with [json-server](https://github.com/typicode/j
 
 ---
 
-## 📁 Project Structure
-
-.
-├── db.json # Sample data (users, products, cart, orders)
-├── package.json # Declares dependencies and scripts
-└── server.js # Custom JSON Server with auth and CORS
-
-
----
-
 ## 🧪 Sample Credentials
 
 ```json
