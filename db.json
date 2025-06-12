@@ -22,13 +22,19 @@
             "role": "admin"
         }
     ],
+    "categories": [
+        {
+            "id": 1,
+            "category": "Electronics"
+        }
+    ],
     "products": [
         {
             "id": 1,
             "name": "Wireless Mouse",
             "description": "Ergonomic wireless mouse",
             "price": 25.99,
-            "category": "Electronics",
+            "categoryId": 1,
             "stock": 100,
             "userId": 3
         },
@@ -37,7 +43,7 @@
             "name": "Bluetooth Headphones",
             "description": "Noise-cancelling over-ear headphones",
             "price": 89.99,
-            "category": "Electronics",
+            "categoryId": 1,
             "stock": 50,
             "userId": 3
         }

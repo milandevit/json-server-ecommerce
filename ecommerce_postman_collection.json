@@ -123,7 +123,7 @@
         "description": "Create a new product (admin only)",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Smartphone\",\n  \"description\": \"Latest model smartphone\",\n  \"price\": 699.99,\n  \"category\": \"Electronics\",\n  \"stock\": 50,\n  \"userId\": 3\n}"
+          "raw": "{\n  \"name\": \"Smartphone\",\n  \"description\": \"Latest model smartphone\",\n  \"price\": 699.99,\n  \"categoryId\": 1,\n  \"stock\": 50,\n  \"userId\": 3\n}"
         }
       }
     },
