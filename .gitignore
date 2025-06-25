@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+
+# Environment variables
+.env
+.env.*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# VS Code settings
+.vscode/
+
+# Optional: Ignore database if you don't want to commit it
+# db.json
+
+# Optional: Ignore persistent disk data (if used)
+data/

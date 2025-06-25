@@ -2,66 +2,21 @@ const jsonServer = require('json-server');
 const auth = require('json-server-auth');
 const cors = require('cors');
 const server = jsonServer.create();
+
+// Use a persistent path for db.json if deploying (e.g., '/data/db.json' on Render)
+// For local dev, 'db.json' is fine
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 
 server.db = router.db;
 
+// --- MIDDLEWARE SETUP ---
+
 server.use(cors());
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
-// Auth middleware first
-server.use(auth);
-
-const protectedRoutes = ['/cart', '/orders', '/addresses', '/wishlists', '/payments', '/reviews'];
-
-function isAdminRoute(req) {
-  return ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
-    ["/products", "/categories"].some(p => req.path.startsWith(p + '/') || req.path === p);
-}
-
-function isProtectedRoute(req) {
-  return ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
-    protectedRoutes.find(route => req.path.startsWith(route));
-}
-
-function extractResourceId(req) {
-  return parseInt(req.path.split('/').pop());
-}
-
-function isOwner(resource, userId) {
-  return resource && resource.userId === userId;
-}
-
-server.use((req, res, next) => {
-  const user = req.user;
-
-  if (isAdminRoute(req)) {
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can modify products or categories.' });
-    }
-  }
-
-  const entity = isProtectedRoute(req);
-  if (entity) {
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
-
-    if (req.method === 'POST') {
-      req.body.userId = user.id;
-    } else if (req.path.match(/^\/\w+\/\d+$/)) {
-      const id = extractResourceId(req);
-      const resource = server.db.get(entity.replace('/', '')).find({ id }).value();
-      if (!isOwner(resource, user.id)) {
-        return res.status(403).json({ error: 'Access denied. You do not own this resource.' });
-      }
-    }
-  }
-
-  next();
-});
-
-// --- Shared Validation Functions ---
+// --- VALIDATION HELPERS ---
 
 function validateProduct(req, res) {
   const { name, price, stock, categoryId } = req.body;
@@ -123,6 +78,8 @@ function validateReview(req) {
   return null;
 }
 
+// --- GENERIC VALIDATION APPLIER ---
+
 function applyValidation(route, validator) {
   server.post(route, (req, res, next) => {
     const error = validator(req, res);
@@ -141,7 +98,8 @@ function applyValidation(route, validator) {
   });
 }
 
-// --- Apply Validations ---
+// --- APPLY VALIDATIONS TO ROUTES ---
+
 applyValidation('/addresses', req => {
   const { address, type } = req.body;
   if (!address || typeof address !== 'string') {
@@ -177,33 +135,130 @@ applyValidation('/coupons', validateCoupon);
 applyValidation('/orders', validateOrder);
 applyValidation('/reviews', validateReview);
 
-// Hide passwords in user responses
-server.get('/users', (req, res) => {
-  const users = server.db.get('users').map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role
-  })).value();
-  res.json(users);
+// --- HIDE PASSWORDS IN USER RESPONSES ---
+
+server.get('/users/:id', (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = server.db.get('users').find({ id: userId }).value();
+  if (!user) return res.status(404).json({ error: 'User not found.' });
+  const userResponse = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  };
+  res.json(userResponse);
 });
 
-// Auth rewrite rules
+// --- ADMIN/OWNERSHIP MIDDLEWARE ---
+
+const protectedRoutes = [
+  '/cart',
+  '/orders',
+  '/addresses',
+  '/wishlists',
+  '/payments',
+  '/reviews',
+  '/users'
+];
+
+// Check if route is for admin-only resources
+function isAdminRoute(req) {
+  return ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
+    ["/products", "/categories"].some(p => req.path.startsWith(p + '/') || req.path === p);
+}
+
+// Check if route is protected (user must own resource)
+function isProtectedRoute(req) {
+  return ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
+    protectedRoutes.find(route => req.path.startsWith(route));
+}
+
+// Extract resource ID from path
+function extractResourceId(req) {
+  return parseInt(req.path.split('/').pop());
+}
+
+// Check if user owns the resource
+function isOwner(resource, userId) {
+  return resource && resource.userId === userId;
+}
+/**
+ * Extracts and decodes the JWT token from the Authorization header in the request,
+ * and returns the corresponding user object from the database.
+ * Returns null if token is missing, invalid, or user not found.
+ */
+const jwt = require('jsonwebtoken'); // Make sure to install this package
+
+function getUserFromJWT(req) {
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+
+  const token = authHeader.split(' ')[1];
+  try {
+    // Use the same secret as json-server-auth (default: 'secret')
+    const decoded = jwt.verify(token, 'json-server-auth-123456');
+    // Find user in db by id (decoded.sub or decoded.id)
+    const userId = parseInt(decoded.sub);
+    if (!userId) return null;
+    const user = server.db.get('users').find({ id: userId }).value();
+    return user || null;
+  } catch (err) {
+    console.error('JWT verification failed:', err);
+    return null;
+  }
+}
+// Ownership and admin check middleware
+server.use((req, res, next) => {
+  const user = getUserFromJWT(req);
+
+  // Admin check for products/categories
+  if (isAdminRoute(req)) {
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can modify products or categories.' });
+    }
+  }
+
+  // Ownership check for protected resources
+  const entity = isProtectedRoute(req);
+  if (entity) {
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    if (req.method === 'POST') {
+      req.body.userId = user.id;
+    } else if (req.path.match(/^\/\w+\/\d+$/)) {
+      const id = extractResourceId(req);
+      const resource = server.db.get(entity.replace('/', '')).find({ id }).value();
+      if (!isOwner(resource, user.id)) {
+        return res.status(403).json({ error: 'Access denied. You do not own this resource.' });
+      }
+    }
+  }
+
+  next();
+});
+
+// --- AUTH REWRITE RULES ---
+
 const rules = auth.rewriter({
-  users: 600,
-  cart: 660,
+  users: 600,        // Only owner can read/write
+  cart: 660,         // Only owner can read/write, authenticated can read
   orders: 660,
   addresses: 660,
   wishlists: 660,
   payments: 660,
   reviews: 660,
-  products: 644,
-  categories: 644,
+  products: 644,     // Public read, only admin can modify (enforced above)
+  categories: 644,   // Authenticated can read, only admin can modify
   coupons: 644
 });
 
 server.use(rules);
+server.use(auth);
 server.use(router);
+
+// --- START SERVER ---
+
 server.listen(3000, () => {
   console.log('JSON Server is running on port 3000');
 });
