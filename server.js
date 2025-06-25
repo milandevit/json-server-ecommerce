@@ -202,7 +202,7 @@ const rules = auth.rewriter({
   coupons: 644
 });
 
-server.use(rules);
+// server.use(rules);
 server.use(router);
 server.listen(3000, () => {
   console.log('JSON Server is running on port 3000');
