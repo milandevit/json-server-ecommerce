@@ -232,7 +232,6 @@ server.use((req, res, next) => {
         const userId = parseInt(req.query['userId'])
         const collection = server.db.get(entity.replace('/', ''));
         const resource = collection.find({ userId: userId }).value();
-        console.log(`${entity} | ${JSON.stringify(req.query)} | ${userId} | ${JSON.stringify(resource)}`)
         if (userId && isOwner(resource, userId)) {
           collection.remove({ userId: userId }).write()
           return res.status(200).json({})
@@ -240,6 +239,7 @@ server.use((req, res, next) => {
           return res.status(403).json({ error: 'Access denied. You do not own this resource.' });
         }
       }
+    } else if (req.method == 'PUT' && user.role === 'admin') {
     } else if (req.path.match(/^\/\w+\/\d+$/)) {
       const id = extractResourceId(req);
       const resource = server.db.get(entity.replace('/', '')).find({ id }).value();
